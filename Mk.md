@@ -69,3 +69,56 @@ This code uses ureq’s fluent API to set headers and perform a blocking HTTP GE
 Since ureq doesn’t support WebSocket upgrade handshakes, it isn’t a drop‑in replacement for tokio‑tungstenite if your goal is to open a WebSocket connection with custom headers.
 
 If you need further clarification or have a different scenario in mind, let me know!
+
+______________________________________________________________________________________________________________
+
+To add an authentication header to a WebSocket connection using `tokio_tungstenite`, you can pass custom headers in the `connect_async` method. This can be done by creating a `Headers` object and adding it to the request using the `header` field.
+
+Here's how you can modify your code to include an authentication header (for example, a Bearer token):
+
+1. Add the `reqwest` dependency in your `Cargo.toml` to handle headers:
+   ```toml
+   [dependencies]
+   tokio = { version = "1", features = ["full"] }
+   tokio-tungstenite = "0.15"
+   reqwest = "0.11"  # Add this for headers
+   ```
+
+2. Use the `HeaderMap` from `reqwest` to add the authentication header.
+
+Here's an updated version of your code:
+
+```rust
+use tokio_tungstenite::{connect_async, tungstenite::Message};
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
+use tokio_tungstenite::tungstenite::protocol::WebSocketConfig;
+
+async fn connect_with_auth(url: &str, token: &str) {
+    // Create headers
+    let mut headers = HeaderMap::new();
+    headers.insert(AUTHORIZATION, HeaderValue::from_str(&format!("Bearer {}", token)).unwrap());
+
+    // Pass headers as part of the WebSocket connection
+    let request = reqwest::Request::new(
+        reqwest::Method::GET,
+        url.parse().unwrap(),
+    ).headers(headers);
+
+    // Establish the connection with the authentication header
+    if let Ok((conn, _)) = connect_async(request).await {
+        // WebSocket connection is established here
+        println!("WebSocket connection established.");
+    } else {
+        println!("Failed to connect.");
+    }
+}
+```
+
+### Key Points:
+- `reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION}` is used to build the headers, including the authentication token.
+- The token is passed as a Bearer token in the header.
+- You pass the `HeaderMap` as part of the request when calling `connect_async`.
+
+Make sure that the WebSocket server you are connecting to supports authentication via headers. If you have a specific token or authentication method, adjust the header creation accordingly.
+
+Let me know if you need further clarification!
