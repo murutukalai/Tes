@@ -1,3 +1,6 @@
+Here’s the equivalent MySQL version of your PostgreSQL commands:
+
+```sql
 -- Create the database
 CREATE DATABASE demo;
 
@@ -21,3 +24,11 @@ FLUSH PRIVILEGES;
 
 -- Set session time zone to UTC (for the current session)
 SET time_zone = 'UTC';
+```
+
+### **Key Differences Between PostgreSQL and MySQL**
+1. **`OWNER TO demo`** – MySQL doesn’t support per-database ownership, so we just grant full privileges.
+2. **`SET TIMEZONE`** – MySQL supports `SET GLOBAL time_zone = 'Asia/Kolkata';` but doesn't allow per-database timezone settings.
+3. **`CREATEDB` and `CREATEROLE`** – MySQL grants similar privileges via `GRANT CREATE, GRANT OPTION`.
+
+Let me know if you need any adjustments!
